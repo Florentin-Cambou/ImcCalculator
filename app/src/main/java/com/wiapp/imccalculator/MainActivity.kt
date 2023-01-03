@@ -246,7 +246,7 @@ fun calculateKcal(
         return resultCalculKcal
     }
 
-    return "Veillez saisir votre age pour le calcule des Kcal"
+    return "Veillez saisir votre age pour le calcul des Kcal"
 }
 
 
