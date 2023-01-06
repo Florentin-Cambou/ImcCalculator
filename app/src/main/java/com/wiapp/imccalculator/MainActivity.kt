@@ -220,6 +220,8 @@ fun SelectActivity(index: Int,list: List<String>, onClick: (Int) -> Unit){
 @Composable
 fun CalculateButton(nameForTextField: String,ageForTextField: String, manIsCheck: Boolean, activitySelectedIndex: Int, resultCalculImc: Double, weightForTextField: String, valueHeight: Float, onClick: (Double) -> Unit, resultCalculKcal: Double, onClickCalculKcal: (Double) -> Unit) {
     Button(
+        modifier = Modifier
+            .padding(35.dp),
         onClick = {
             onClick(calculateImc(weightForTextField,valueHeight))
             onClickCalculKcal(calculateKcal(weightForTextField,valueHeight,ageForTextField,manIsCheck,activitySelectedIndex))
