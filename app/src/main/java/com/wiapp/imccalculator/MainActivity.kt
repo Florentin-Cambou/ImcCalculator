@@ -3,9 +3,7 @@ package com.wiapp.imccalculator
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
@@ -13,7 +11,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusManager
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -34,7 +31,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colors.background
                 ) {
-                    Body()
+                    ScaffoldComposable()
                 }
             }
         }
@@ -42,11 +39,19 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
+fun ScaffoldComposable(){
+    Scaffold(
+        content = { Body()}
+    )
+}
+
+@Composable
 fun Body() {
     var nameForTextField by remember { mutableStateOf("") }
     var ageForTextField  by remember { mutableStateOf("") }
     var manIsCheck by remember { mutableStateOf(true) }
-    var weigth by remember { mutableStateOf(0) }
+    var weightForTextField by remember { mutableStateOf("") }
+    /*var weight by remember { mutableStateOf(0) }*/
     var valueHeight by remember { mutableStateOf(40.0F) }
     var activitySelectedIndex by remember { mutableStateOf(0) }
     var resultCalculImc by remember { mutableStateOf(0) }
@@ -65,8 +70,8 @@ fun Body() {
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         OutLinedTextFieldName(valueTextFieldName = nameForTextField , onChangedTextFieldName = {nameForTextField = it} )
-        OutLinedTextFieldAge(valueTextFieldAge = ageForTextField, onChangedTextFieldAge = {ageForTextField = it}, manager = manager)
-
+        OutLinedTextFieldAge(valueTextFieldAge = ageForTextField, onChangedTextFieldAge = {ageForTextField = it})
+        OutLinedTextFieldWeight(valueTextFieldWeight = weightForTextField, onChangedTextFieldWeight = {weightForTextField = it}, manager = manager)
 
         Row(modifier = rowModifier,
             horizontalArrangement = Arrangement.SpaceBetween,
@@ -79,17 +84,15 @@ fun Body() {
             }
             SwitchCompose(isCheck = manIsCheck, onChangedCheck = {manIsCheck = it})
         }
-        StepperWeigth(weigth = weigth, onChengedWeigthValue = {weigth = it}, modifier = rowModifier)
+
+        /*StepperWeigth(weight = weight, onChengedWeigthValue = {weight = it}, modifier = rowModifier)*/
 
         Text(text = "Taille: ${valueHeight.toInt()} cm")
-        SliderHeigth(valueHeigth = valueHeight, onChangedHeigthValue = {valueHeight = it})
+        SliderHeigth(valueHeight = valueHeight, onChangedHeightValue = {valueHeight = it})
 
         SelectActivity(index = activitySelectedIndex, list = listSelectActivity, onClick = { activitySelectedIndex = it})
 
-        CalculateButton(ageForTextField = ageForTextField, manIsCheck = manIsCheck, activitySelectedIndex = activitySelectedIndex,weigth = weigth, valueHeigth = valueHeight, onClick = {resultCalculImc = it.toInt() }, resultCalculImc = resultCalculImc.toDouble(), resultCalculKcal = resultCalculKcal.toDouble(), onClickCalculKcal = { resultCalculKcal = it.toInt() })
-        
-/*        Text(text = "${calculateImc(weigth, valueHeigth)}")
-        Text(text = "${calculateKcal(weigth,valueHeigth,ageForTextField,manIsCheck,activitySelectedIndex)}")*/
+        CalculateButton(nameForTextField= nameForTextField,ageForTextField = ageForTextField, manIsCheck = manIsCheck, activitySelectedIndex = activitySelectedIndex,weightForTextField = weightForTextField, valueHeight = valueHeight, onClick = {resultCalculImc = it.toInt() }, resultCalculImc = resultCalculImc.toDouble(), resultCalculKcal = resultCalculKcal.toDouble(), onClickCalculKcal = { resultCalculKcal = it.toInt() })
 
         }
     }
@@ -110,20 +113,37 @@ fun OutLinedTextFieldName(valueTextFieldName: String,onChangedTextFieldName: (St
 }
 
 @Composable
-fun OutLinedTextFieldAge(valueTextFieldAge: String, manager: FocusManager, onChangedTextFieldAge: (String) -> Unit){
+fun OutLinedTextFieldAge(valueTextFieldAge: String, onChangedTextFieldAge: (String) -> Unit){
     OutlinedTextField(
         label = { Text(text = "Age")},
         value = valueTextFieldAge ,
         onValueChange = onChangedTextFieldAge,
-        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Done),
-        keyboardActions = KeyboardActions(
-            onDone = { manager.clearFocus() }
-        ),
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Next),
         modifier = Modifier
             .fillMaxWidth()
             .padding(15.dp),
         shape = Shapes.small,
     )
+}
+
+@Composable
+fun OutLinedTextFieldWeight(valueTextFieldWeight: String, manager: FocusManager, onChangedTextFieldWeight: (String) -> Unit ){
+    OutlinedTextField(
+        label = { Text(text = "Poids")},
+        value = valueTextFieldWeight,
+        onValueChange = onChangedTextFieldWeight,
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Done),
+        keyboardActions = KeyboardActions(
+            onDone = {manager.clearFocus()}
+        ),
+
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(15.dp),
+        shape = Shapes.small
+
+    )
+
 }
 
 @Composable
@@ -134,14 +154,14 @@ fun SwitchCompose(isCheck: Boolean, onChangedCheck: (Boolean) -> Unit){
     )
 }
 
-@Composable
-fun StepperWeigth(weigth: Int, modifier: Modifier,onChengedWeigthValue: (Int) -> Unit){
+/*@Composable
+fun StepperWeigth(weight: Int, modifier: Modifier, onChengedWeigthValue: (Int) -> Unit){
         Row(
             modifier = modifier,
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(text = "$weigth Kg")
+            Text(text = "$weight Kg")
 
             Surface(
                 modifier = Modifier
@@ -152,23 +172,23 @@ fun StepperWeigth(weigth: Int, modifier: Modifier,onChengedWeigthValue: (Int) ->
 
             ) {
                 Row() {
-                    TextButton(onClick = { onChengedWeigthValue(weigth + 1) }) {
+                    TextButton(onClick = { onChengedWeigthValue(weight + 1) }) {
                         Text(text = "+")
                     }
-                    TextButton(onClick = { onChengedWeigthValue(weigth - 1) }) {
+                    TextButton(onClick = { onChengedWeigthValue(weight - 1) }) {
                         Text(text = "-")
                     }
                 }
             }
         }
 
-    }
+    }*/
 
 @Composable
-fun SliderHeigth(valueHeigth: Float, onChangedHeigthValue: (Float) -> Unit){
+fun SliderHeigth(valueHeight: Float, onChangedHeightValue: (Float) -> Unit){
     Slider(
-        value = valueHeigth ,
-        onValueChange = onChangedHeigthValue,
+        value = valueHeight ,
+        onValueChange = onChangedHeightValue,
         valueRange = 40.0F..272.0F
     )
 }
@@ -198,11 +218,11 @@ fun SelectActivity(index: Int,list: List<String>, onClick: (Int) -> Unit){
 }
 
 @Composable
-fun CalculateButton(ageForTextField: String,manIsCheck: Boolean,activitySelectedIndex: Int,resultCalculImc: Double,weigth: Int,valueHeigth: Float, onClick: (Double) -> Unit,resultCalculKcal: Double,onClickCalculKcal: (Double) -> Unit) {
+fun CalculateButton(nameForTextField: String,ageForTextField: String, manIsCheck: Boolean, activitySelectedIndex: Int, resultCalculImc: Double, weightForTextField: String, valueHeight: Float, onClick: (Double) -> Unit, resultCalculKcal: Double, onClickCalculKcal: (Double) -> Unit) {
     Button(
         onClick = {
-            onClick(calculateImc(weigth,valueHeigth))
-            onClickCalculKcal(calculateKcal(weigth,valueHeigth,ageForTextField,manIsCheck,activitySelectedIndex))
+            onClick(calculateImc(weightForTextField,valueHeight))
+            onClickCalculKcal(calculateKcal(weightForTextField,valueHeight,ageForTextField,manIsCheck,activitySelectedIndex))
         }
     ) {
         Text(text = "Calculer")
@@ -216,13 +236,13 @@ fun CalculateButton(ageForTextField: String,manIsCheck: Boolean,activitySelected
     if(resultCalculKcal == 0.0){
         Text(text = "Veillez saisir vos informations pour le calcul")
     }else{
-        Text(text = "Vous devez consommer ${resultCalculKcal.toInt()} Kcal par jours")
+        Text(text = "$nameForTextField Vous devez consommer ${resultCalculKcal.toInt()} Kcal par jours")
     }
 }
 
-fun calculateImc(weigth: Int, valueHeigth: Float): Double {
-    val valueHeigthToMeter = valueHeigth / 100
-    val formulaCalculateImc = weigth / (valueHeigthToMeter * valueHeigthToMeter)
+fun calculateImc(weightForTextField: String, valueHeight: Float): Double {
+    val valueHeigthToMeter = valueHeight / 100
+    val formulaCalculateImc = weightForTextField.toInt() / (valueHeigthToMeter * valueHeigthToMeter)
 
     return formulaCalculateImc.toBigDecimal().setScale(2, RoundingMode.UP).toDouble()
 }
@@ -240,14 +260,14 @@ fun coeff(activitySelectedIndex: Int): Double {
 }
 
 fun calculateKcal(
-    weigth: Int,
-    valueHeigth: Float, ageForTextField: String,
+    weightForTextField: String,
+    valueHeight: Float, ageForTextField: String,
     manIsCheck: Boolean,
     activitySelectedIndex: Int
 ): Double {
 
     if (ageForTextField != ""){
-        val formulaCalculateKcal = (10 * weigth) + (6.25 * valueHeigth) - (5 * ageForTextField.toInt())
+        val formulaCalculateKcal = (10 * weightForTextField.toInt()) + (6.25 * valueHeight) - (5 * ageForTextField.toInt())
 
         val caloriesGender = if (manIsCheck) {
             formulaCalculateKcal + 5
@@ -258,7 +278,7 @@ fun calculateKcal(
 
         return  caloriesGender * coeff(activitySelectedIndex)
     }
-    return calculateKcal(weigth, valueHeigth, ageForTextField, manIsCheck, activitySelectedIndex)
+    return calculateKcal(weightForTextField, valueHeight, ageForTextField, manIsCheck, activitySelectedIndex)
 }
 
 
