@@ -101,6 +101,7 @@ fun Body() {
 @Composable
 fun OutLinedTextFieldName(valueTextFieldName: String,onChangedTextFieldName: (String) -> Unit){
     OutlinedTextField(
+        isError = (valueTextFieldName == ""),
         label = { Text(text = "Prénom")},
         value = valueTextFieldName,
         onValueChange = onChangedTextFieldName,
@@ -115,6 +116,7 @@ fun OutLinedTextFieldName(valueTextFieldName: String,onChangedTextFieldName: (St
 @Composable
 fun OutLinedTextFieldAge(valueTextFieldAge: String, onChangedTextFieldAge: (String) -> Unit){
     OutlinedTextField(
+        isError = (valueTextFieldAge == "") ,
         label = { Text(text = "Age")},
         value = valueTextFieldAge ,
         onValueChange = onChangedTextFieldAge,
@@ -129,6 +131,7 @@ fun OutLinedTextFieldAge(valueTextFieldAge: String, onChangedTextFieldAge: (Stri
 @Composable
 fun OutLinedTextFieldWeight(valueTextFieldWeight: String, manager: FocusManager, onChangedTextFieldWeight: (String) -> Unit ){
     OutlinedTextField(
+        isError = valueTextFieldWeight == "",
         label = { Text(text = "Poids")},
         value = valueTextFieldWeight,
         onValueChange = onChangedTextFieldWeight,
@@ -219,9 +222,12 @@ fun SelectActivity(index: Int,list: List<String>, onClick: (Int) -> Unit){
 
 @Composable
 fun CalculateButton(nameForTextField: String,ageForTextField: String, manIsCheck: Boolean, activitySelectedIndex: Int, resultCalculImc: Double, weightForTextField: String, valueHeight: Float, onClick: (Double) -> Unit, resultCalculKcal: Double, onClickCalculKcal: (Double) -> Unit) {
+    val regexString = Regex("[a-zA-Z]")
+    val regexInt = Regex("[0-9]")
     Button(
         modifier = Modifier
             .padding(35.dp),
+        enabled = nameForTextField.contains(regex = regexString) && ageForTextField.contains(regex = regexInt) && weightForTextField.contains(regex = regexInt),
         onClick = {
             onClick(calculateImc(weightForTextField,valueHeight))
             onClickCalculKcal(calculateKcal(weightForTextField,valueHeight,ageForTextField,manIsCheck,activitySelectedIndex))
@@ -229,17 +235,17 @@ fun CalculateButton(nameForTextField: String,ageForTextField: String, manIsCheck
     ) {
         Text(text = "Calculer")
     }
-    if(resultCalculImc == 0.0){
-        Text(text = "")
-    }else{
-        Text(text = "$resultCalculImc")
-    }
+        if(resultCalculImc == 0.0){
+            Text(text = "")
+        }else{
+            Text(text = "Votre IMC est de: $resultCalculImc")
+        }
 
-    if(resultCalculKcal == 0.0){
-        Text(text = "Veillez saisir vos informations pour le calcul")
-    }else{
-        Text(text = "$nameForTextField Vous devez consommer ${resultCalculKcal.toInt()} Kcal par jours")
-    }
+        if(resultCalculKcal == 0.0){
+            Text(text = "Veillez saisir vos informations pour le calcul")
+        }else{
+            Text(text = "$nameForTextField Vous devez consommer ${resultCalculKcal.toInt()} Kcal par jours \npour garder votre poids de: $weightForTextField Kg")
+        }
 }
 
 fun calculateImc(weightForTextField: String, valueHeight: Float): Double {
